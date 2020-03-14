@@ -1,4 +1,4 @@
-//gcc -Wall -O2 stef.c -S -DN=100
+//gcc -Wall -O2 no-sse.c -o no-sse -DN=12 -DM=1
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -29,12 +29,6 @@ int main () {
         exit(1);   
     }
     // initialize the arrays so they are preempted in the cache 
-    // for (i = 0; i < N; i++) {
-    //     for (j = 0; j < M; j++) {
-    //         oldImage[i * M + j] = i;
-    //         newImage[i * M + j] = i * 2.0;
-    //     }
-    // }
     for (i = 0; i < N * M; i++) {
         oldImage[i] = i;
         newImage[i] = i * 2.0;
