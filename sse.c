@@ -1,11 +1,8 @@
+// gcc -O2 -Wall -msse2 sse.c -o sse -DN=10000 -DM=10000
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-
 #include <emmintrin.h>
-
-// compile e.g. with (N must be multiple of 4!):
-// gcc -O2 -Wall -msse2 sse.c -o sse -DN=4 -DM=4
 
 void get_walltime(double *wct) {
     struct timeval tp;
@@ -20,11 +17,9 @@ int main() {
 
     float newPixelSummary;
     
-    // quad float variables, should be put in sse registers (up to 16 registers in 64bit cpus)
-    
-    __m128 newImagePeripheralPixelSummary, test;
+    __m128 newImagePeripheralPixelSummary, newImageNewPixelValue;
     double timeStart, timeEnd;
-    int i, j;
+    int i, j, k;
 
     i = posix_memalign((void **)&oldImage, 16, N * M * sizeof(float));
     if (i != 0) {
@@ -63,19 +58,22 @@ int main() {
                         _mm_set_ps(oldImage[(i - 1) * M + j - 1],
                             oldImage[(i - 1) * M + j],
                             oldImage[(i - 1) * M + (j + 1)],
-                            oldImage[i * M + j - 1] ),
+                            oldImage[i * M + j - 1]
+                        ),
                         _mm_set_ps(oldImage[(i + 1) * M + j - 1],
                             oldImage[(i + 1) * M + j],
                             oldImage[(i + 1) * M + (j + 1)],
-                            oldImage[i * M + (j + 1)])
+                            oldImage[i * M + (j + 1)]
+                        )
                     ),
                     _mm_load_ps(pixelConstant)
                 );
-            for (int k = 0; k < 4; k++) {
+            for (k = 0; k < 4; k++) {
                 newPixelSummary += newImagePeripheralPixelSummary[k];
             }
-            test = _mm_mul_ps(_mm_set_ps1(oldImage[i * M + j]), _mm_set_ps1(5.0));
-            newPixelSummary += test[0];
+            
+            newImageNewPixelValue = _mm_mul_ps(_mm_set_ps1(oldImage[i * M + j]), _mm_set_ps1(5.0));
+            newPixelSummary += newImageNewPixelValue[0];
             newImage[i * M + j] = newPixelSummary;
             
             newPixelSummary = 0;
