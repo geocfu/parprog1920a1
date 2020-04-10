@@ -1,4 +1,4 @@
-//gcc -Wall -O2 no-sse.c -o no-sse -DN=12 -DM=1
+//gcc -O2 -Wall no-sse.c -o no-sse -DN=10000 -DM=10000
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -31,112 +31,27 @@ int main () {
     // initialize the arrays so they are preempted in the cache 
     for (i = 0; i < N * M; i++) {
         oldImage[i] = i;
-        newImage[i] = i * 2.0;
+        newImage[i] = 1.0;
     }
+
     getWallTime(&timeStart);
-
-    for (i = 0; i < N; i++) {
-        for (j = 0; j < M; j++) {
-            if (i == 0) {
-                // first row and first column
-                if (j == 0) {
-                    newImage[i * M + j] = (oldImage[i * M + j] * 5.0)
-                        + (oldImage[i * M + j + 1] * 0.5)
-                        + (oldImage[(i + 1) * M + j] * 0.5)
-                        + (oldImage[(i + 1) * M + j + 1] * 0.5);
-                // first row and median column
-                } else if (j <= M - 2) {
-                    newImage[i * M + j] = (oldImage[i * M + j] * 5.0)
-                        + (oldImage[i * M + j - 1] * 0.5)
-                        + (oldImage[i * M + j + 1] * 0.5)
-                        + (oldImage[(i + 1) * M + j] * 0.5)
-                        + (oldImage[(i + 1) * M + j - 1] * 0.5)
-                        + (oldImage[(i + 1) * M + j + 1] * 0.5);
-                // first row and last column
-                } else {
-                    newImage[i * M + j] = (oldImage[i * M + j] * 5.0)
-                        + (oldImage[i * M + j - 1] * 0.5)
-                        + (oldImage[(i + 1) * M + j] * 0.5)
-                        + (oldImage[(i + 1) * M + j - 1] * 0.5);
-                }
-            } else if (i <= N - 2) {
-                // median row and first column
-                if (j == 0) {
-                    newImage[i * M + j] = (oldImage[i * M + j] * 5.0)
-                        + (oldImage[i * M + j + 1] * 0.5)
-                        + (oldImage[(i + 1) * M + j] * 0.5)
-                        + (oldImage[(i + 1) * M + j + 1] * 0.5)
-                        + (oldImage[(i - 1) * M + j] * 0.5)
-                        + (oldImage[(i - 1) * M + j + 1] * 0.5);
-                // median row and median column
-                } else if (j <= M - 2) {
-                    newImage[i * M + j] = (oldImage[i * M + j] * 5.0)
-                        + (oldImage[i * M + j - 1] * 0.5)
-                        + (oldImage[i * M + j + 1] * 0.5)
-                        + (oldImage[(i + 1) * M + j] * 0.5)
-                        + (oldImage[(i + 1) * M + j - 1] * 0.5)
-                        + (oldImage[(i + 1) * M + j + 1] * 0.5)
-                        + (oldImage[(i - 1) * M + j] * 0.5)
-                        + (oldImage[(i - 1) * M + j - 1] * 0.5)
-                        + (oldImage[(i - 1) * M + j + 1] * 0.5);
-                // median row and last column
-                } else {
-                    newImage[i * M + j] = (oldImage[i * M + j] * 5.0)
-                        + (oldImage[i * M + j - 1] * 0.5)
-                        + (oldImage[(i + 1) * M + j] * 0.5)
-                        + (oldImage[(i + 1) * M + j - 1] * 0.5)
-                        + (oldImage[(i - 1) * M + j] * 0.5)
-                        + (oldImage[(i - 1) * M + j - 1] * 0.5);
-                }
-            } else {
-                // last row and first column
-                if (j == 0) {
-                    newImage[i * M + j] = (oldImage[i * M + j] * 5.0)
-                        + (oldImage[i * M + j + 1] * 0.5)
-                        + (oldImage[(i - 1) * M + j] * 0.5)
-                        + (oldImage[(i - 1) * M + j + 1] * 0.5);
-                // last row and median column
-                } else if (j <= M - 2) {
-                    newImage[i * M + j] = (oldImage[i * M + j] * 5.0)
-                        + (oldImage[i * M + j - 1] * 0.5)
-                        + (oldImage[i * M + j + 1] * 0.5)
-                        + (oldImage[(i - 1) * M + j] * 0.5)
-                        + (oldImage[(i - 1) * M + j - 1] * 0.5)
-                        + (oldImage[(i - 1) * M + j + 1] * 0.5);
-                // last row and last column
-                } else {
-                    newImage[i * M + j] = (oldImage[i * M + j] * 5.0)
-                        + (oldImage[i * M + j - 1] * 0.5)
-                        + (oldImage[(i - 1) * M + j] * 0.5)
-                        + (oldImage[(i - 1) * M + j - 1] * 0.5);
-                }
-            }
+    for (i = 1; i < N - 1; i++) {
+        for (j = 1; j < M - 1; j++) {
+            newImage[i * M + j] = (oldImage[i * M + j] * 5.0)
+                + (oldImage[i * M + j - 1] * 0.5)
+                + (oldImage[i * M + j + 1] * 0.5)
+                + (oldImage[(i + 1) * M + j] * 0.5)
+                + (oldImage[(i + 1) * M + j - 1] * 0.5)
+                + (oldImage[(i + 1) * M + j + 1] * 0.5)
+                + (oldImage[(i - 1) * M + j] * 0.5)
+                + (oldImage[(i - 1) * M + j - 1] * 0.5)
+                + (oldImage[(i - 1) * M + j + 1] * 0.5);
         }
     }
-
     getWallTime(&timeEnd);
-    
-    for (i = 0; i < N; i++) {
-        for (j = 0; j < M; j++) {
-            printf("%0.4f ", oldImage[i * M + j]);
-        }
-        printf("\n");
-    }
-    printf("-------------------------------------------\n");
-    printf("\n");
-    for (i = 0; i < N; i++) {
-        for (j = 0; j < M; j++) {
-            printf("%0.4f ", newImage[i * M + j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
 
-    printf("Megaflops: ");
-    printf("%f\n", (2.0 * (double)N * M) / ((timeEnd - timeStart) * 1e6));
-    
-    printf("Time took: ");
-    printf("%f",timeEnd - timeStart);
+    printf("Megaflops: %f\n", (2.0 * (double)N * M) / ((timeEnd - timeStart) * 1e6));
+    printf("Time took: %f\n", timeEnd - timeStart);
 
     //free the memory
     free(oldImage);
